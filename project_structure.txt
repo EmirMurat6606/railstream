@@ -1,0 +1,49 @@
+rail-mqtt-edge-gateway/
+│
+├── backend/                  # Go service (EC2)
+│   ├── cmd/
+│   │   └── server/
+│   │       └── main.go
+│   │
+│   ├── internal/
+│   │   ├── gtfs/
+│   │   │   ├── static_loader.go
+│   │   │   ├── realtime_fetcher.go
+│   │   │   └── parser.go
+│   │   │
+│   │   ├── trips/
+│   │   │   ├── next_trip.go
+│   │   │   └── segment_analysis.go
+│   │   │
+│   │   ├── mqtt/
+│   │   │   └── publisher.go
+│   │   │
+│   │   └── config/
+│   │       └── config.go
+│   │
+│   ├── go.mod
+│   └── go.sum
+│
+├── firmware/                 # ESP32 PlatformIO project
+│   ├── platformio.ini
+│   ├── src/
+│   │   ├── main.cpp
+│   │   ├── wifi_manager.cpp
+│   │   ├── mqtt_client.cpp
+│   │   ├── lcd_display.cpp
+│   │   ├── joystick.cpp
+│   │   └── trip_view.cpp
+│   │
+│   └── include/
+│       ├── wifi_manager.h
+│       ├── mqtt_client.h
+│       ├── lcd_display.h
+│       ├── joystick.h
+│       └── trip_view.h
+│
+├── docs/
+│   ├── architecture.md
+│   ├── hardware_schematic.png
+│   └── demo.gif
+│
+└── README.md
