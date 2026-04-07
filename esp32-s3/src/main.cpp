@@ -1,29 +1,26 @@
 #include <Arduino.h>
 
 #include "LCD.h"
+#include "JoyStick.h"
 
 // Define the LCD display
-LCD lcd = LCD(0x27, 16, 2, A4, A5);
-int counter = 0;
+// LCD lcd = LCD{0x27, 16, 2, A4, A5};
 
 // Define the Joystick
-
+JoyStick joyStick = JoyStick{A0, A1, 8};
 
 // Define the Wifi-manager
 
 void setup() {
-  lcd.begin();
+  Serial.begin(11500);
+  Serial.print("Hello");
 }
 
 void loop() {
-  delay(2000);
-  lcd.clear();
-
-  char buffer[21];
-  sprintf(buffer, "%d", counter);
-  
-  lcd.display(buffer);
-  counter++;
-
+  delay(1000);
+  joyStick.update();
+  String coordinates = joyStick.getState().print();
+  Serial.print(coordinates);
+  Serial.println("");
 }
 

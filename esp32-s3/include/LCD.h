@@ -9,14 +9,14 @@ class LCD {
 
 private:
 
-    const u_int8_t I2C_addr;
+    const uint8_t I2C_addr;
 
-    const u_int8_t cols;
-    const u_int8_t rows;
+    const uint8_t cols;
+    const uint8_t rows;
 
     
-    const u_int8_t SDA_PIN;
-    const u_int8_t SCL_PIN;
+    const uint8_t SDA_PIN;
+    const uint8_t SCL_PIN;
 
  
     LiquidCrystal_I2C lcd;
@@ -32,10 +32,10 @@ public:
      * @param sda_pin Pin number for SDA (ignored on Arduino Uno R4)
      * @param scl_pin Pin number for SCL (ignored on Arduino Uno R4)
      */
-    LCD(u_int8_t interface_addr, u_int8_t cols, u_int8_t rows, uint8_t sda_pin, uint8_t scl_pin);
+    LCD(uint8_t interface_addr, uint8_t cols, uint8_t rows, uint8_t sda_pin, uint8_t scl_pin);
 
     /**
-     * Does the hardware setup of the lcd display
+     * @brief Does the hardware setup of the lcd display
      * 
      *  This function will:
      * - Initialize I2C (Wire.begin)
@@ -49,7 +49,7 @@ public:
      * 
      * @param text the text to display
      */
-    void display(const char * text);
+    void display(const String text);
 
     /**
      * @brief Clears the display 
