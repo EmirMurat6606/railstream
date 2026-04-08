@@ -11,10 +11,6 @@ rail-mqtt-edge-gateway/
 │   │   │   ├── realtime_fetcher.go
 │   │   │   └── parser.go
 │   │   │
-│   │   ├── trips/
-│   │   │   ├── next_trip.go
-│   │   │   └── segment_analysis.go
-│   │   │
 │   │   ├── mqtt/
 │   │   │   └── publisher.go
 │   │   │

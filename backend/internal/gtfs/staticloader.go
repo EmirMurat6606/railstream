@@ -11,8 +11,12 @@ import (
 	env "github.com/joho/godotenv"
 )
 
+// StaticFeed stores information from the static GTFS feed
 type StaticFeed struct {
-	Dummy string
+	Stops map[string]*Stop
+	Trips map[string]*Trip 
+	StopTimes    map[string][]*StopTime       
+    Services     map[string]*Service
 }
 
 func updateStatic() error {
@@ -54,6 +58,8 @@ func updateStatic() error {
 	if err != nil {
 		return err
 	}
+
+	// Parser extracts data and returns StaticFeed
 
 	return nil
 }
