@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 /**
- * Describes the Joystick z-axis state
+ * @brief Describes the joysticks z-axis state
  */
 enum ZState
 {
@@ -12,10 +12,27 @@ enum ZState
     NOT_PRESSED
 };
 
-struct Coordinates
+/**
+ * @brief Describes the joysticks x-axis state
+ */
+enum XState
 {
-    uint16_t x;
-    uint16_t y;
+    LEFT,
+    RIGHT
+};
+
+/**
+ * @brief Describes the joysticks y-axis state
+ */
+enum YState{
+    UP,
+    DOWN
+};
+
+struct JoyStickState
+{
+    XState x;
+    YState y;
     ZState button;
 
     String print();
@@ -29,7 +46,7 @@ private:
     const uint8_t y_axis_pin;
     const uint8_t z_axis_pin;
 
-    Coordinates coordinates;
+    JoyStickState state;
 
 public:
     /**
@@ -40,7 +57,7 @@ public:
     JoyStick(const uint8_t x_axis_pin, const uint8_t y_axis_pin, const uint8_t z_axis_pin);
 
     /**
-     * @brief Updates the x, y and z coordinates of the joystick
+     * @brief Updates the x, y and z positions (states) of the joystick
      *
      * @return Returns a boolean indicating if the update was succesfull or not
      */
@@ -49,9 +66,9 @@ public:
     /**
      * @brief Returns the state of the joystick (e.g. the x, y and z values)
      *
-     * @return The coordinates of the joystick
+     * @return The positions (state) of the joystick
      */
-    Coordinates getState();
+    JoyStickState getState();
 };
 
 #endif

@@ -3,29 +3,28 @@
 
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
-#include <string>
+#include <vector>
 
-class LCD {
+class LCD
+{
 
 private:
-
     const uint8_t I2C_addr;
 
     const uint8_t cols;
     const uint8_t rows;
 
-    
     const uint8_t SDA_PIN;
     const uint8_t SCL_PIN;
 
- 
+    std::vector<String> buffer;
+
     LiquidCrystal_I2C lcd;
 
 public:
-    
     /**
      * @brief Construct a new LCD object and initialize the display.
-     * 
+     *
      * @param interface_addr The preferred I2C address of the LCD (commonly 0x27 or 0x3F)
      * @param cols Number of columns of the LCD (usually 16 or 20)
      * @param rows Number of rows of the LCD (usually 2 or 4)
@@ -36,7 +35,7 @@ public:
 
     /**
      * @brief Does the hardware setup of the lcd display
-     * 
+     *
      *  This function will:
      * - Initialize I2C (Wire.begin)
      * - Turn on the backlight
@@ -46,16 +45,32 @@ public:
 
     /**
      * @brief Displays some text on the lcd
-     * 
-     * @param text the text to display
+     *
+     * @param pos position of the data in the buffer to display
      */
-    void display(const String text);
+    void display(uint8_t pos);
 
     /**
-     * @brief Clears the display 
+     * @brief Clears the display
      */
     void clear();
 
+    /**
+     * @brief Returns the length of the buffer (amount of data to display)
+     * 
+     * @return The length of the internal data buffer
+     */
+    int getBufferLength() const;
+
+    /**
+     * @brief Clears the data in the buffer
+     */
+    void clearBuffer();
+
+    /**
+     * @brief Adds data to the data buffer
+     */
+    void addBufferData(String data);
 };
 
 #endif

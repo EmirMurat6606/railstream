@@ -1,11 +1,11 @@
 #include "JoyStick.h"
 
-String Coordinates::print()
+String JoyStickState::print()
 {
     String output = "";
 
-    output += "x-coordinate: " + String(x) + ", ";
-    output += "y-coordinate: " + String(y) + ", ";
+    output += "x-direction: " + String(x) + ", ";
+    output += "y-direction: " + String(y) + ", ";
     output += "button: ";
     output += (button == PRESSED) ? "PRESSED" : "NOT PRESSED";
 
@@ -15,20 +15,21 @@ String Coordinates::print()
 JoyStick::JoyStick(const uint8_t x_axis_pin, const uint8_t y_axis_pin, const uint8_t z_axis_pin) : x_axis_pin(x_axis_pin), y_axis_pin(y_axis_pin), z_axis_pin(z_axis_pin)
 {
     pinMode(z_axis_pin, INPUT_PULLUP);
-    this->coordinates.button = NOT_PRESSED;
+    this->state.button = NOT_PRESSED;
 }
 
 bool JoyStick::update()
 {
 
-    this->coordinates.x = analogRead(x_axis_pin);
-    this->coordinates.y = analogRead(y_axis_pin);
+    uint16_t x_val = analogRead(x_axis_pin);
+    uint16_t y_val = analogRead(y_axis_pin);
 
+    // If statements here to check values (test this out)
     uint8_t zVal = digitalRead(z_axis_pin);
-    this->coordinates.button = (zVal == LOW) ? PRESSED : NOT_PRESSED;
+    this->state.button = (zVal == LOW) ? PRESSED : NOT_PRESSED;
 }
 
-Coordinates JoyStick::getState()
+JoyStickState JoyStick::getState()
 {
-    return coordinates;
+    return this->state;
 }
