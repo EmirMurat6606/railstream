@@ -87,8 +87,12 @@ func NewMqttPublisher(broker string, port uint16, clientName string, credentials
 	return &publisher, nil
 }
 
-func (*publisher) Print() error {
+func (p *publisher) Publish(data byte, topic string) error {
+	token := p.client.Publish(topic, 1, true, data)
 
-	fmt.Println("hello, I am printing")
+	if token.Error() != nil {
+		return token.Error()
+	}
+
 	return nil
 }
