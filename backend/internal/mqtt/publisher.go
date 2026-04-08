@@ -39,8 +39,6 @@ func loadCredentials(path string) (*credentials, error) {
 		return nil, err
 	}
 
-	fmt.Println(data)
-
 	var credentials = credentials{
 		Username: data["MQTT_USERNAME"],
 		Password: data["MQTT_PASSWORD"],
