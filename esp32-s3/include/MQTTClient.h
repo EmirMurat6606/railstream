@@ -1,8 +1,9 @@
 #ifndef MQTT_CLIENT_H
 #define MQTT_CLIENT_H
 
-#include <PubSubClient.h>µ
-#include <WiFiS3.h>
+#include <PubSubClient.h>
+#include <WiFiSSLClient.h>
+
 
 
 namespace MQTT
@@ -28,9 +29,9 @@ namespace MQTT
     private:
         Credentials credentials;
 
+        WiFiSSLClient wifiClient;
+        
         PubSubClient client;
-
-        WiFiClient wifiClient;
 
         const char* client_id;
 
@@ -80,4 +81,5 @@ namespace MQTT
 
     };
 };
+
 #endif

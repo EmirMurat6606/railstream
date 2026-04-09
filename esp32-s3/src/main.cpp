@@ -20,8 +20,8 @@ Wifi::Manager wifiManager = Wifi::Manager{};
 unsigned long lastWifiCheck = 0;
 const unsigned long wifiCheckInterval = 2000;
 
-// Define the MQTT Client
-MQTT::Client mqttClient = MQTT::Client("1");
+// Define the MQTT Client (random client id)
+MQTT::Client mqttClient = MQTT::Client("esp32_s3_mini1_emir_ncvkxmqeuifuazoeifd");
 
 void setup() {
   // Setup serial
@@ -53,14 +53,25 @@ void setup() {
   while (!mqttClient.connect()){
     delay(500);
   }
-
+  
   mqttClient.subscribe("topic/test/test1", 1);
   mqttClient.subscribe("topic/test/test2", 1);
  
 }
 
 void loop() {
+  // Update the joystick & lcd
   controller.update();
+
+  // The PubSubClient needs to update to get messages
+  mqttClient.getClient().loop();
+
+  // Check for MQTT Connection loss
+  if (!mqttClient.getClient().connected()) {
+    Serial.println("MQTT lost connection!");
+    mqttClient.connect();
+  }
+
   // Check WiFi periodically
     if (millis() - lastWifiCheck >= wifiCheckInterval) {
         lastWifiCheck = millis();
