@@ -3,7 +3,9 @@
 
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
-#include <vector>
+
+static const uint8_t MAX_ITEMS = 10;
+static const uint8_t MAX_LENGTH = 17; // if cols is 16
 
 class LCD
 {
@@ -17,7 +19,9 @@ private:
     const uint8_t SDA_PIN;
     const uint8_t SCL_PIN;
 
-    std::vector<String> buffer;
+    char buffer[MAX_ITEMS][MAX_LENGTH];
+    uint8_t bufferSize = 0;
+;
 
     LiquidCrystal_I2C lcd;
 
@@ -28,8 +32,8 @@ public:
      * @param interface_addr The preferred I2C address of the LCD (commonly 0x27 or 0x3F)
      * @param cols Number of columns of the LCD (usually 16 or 20)
      * @param rows Number of rows of the LCD (usually 2 or 4)
-     * @param sda_pin Pin number for SDA (ignored on Arduino Uno R4)
-     * @param scl_pin Pin number for SCL (ignored on Arduino Uno R4)
+     * @param sda_pin Pin number for SDA (ignored on Arduino Uno R4 and Freenove ESP32-S3)
+     * @param scl_pin Pin number for SCL (ignored on Arduino Uno R4 and Freenove ESP32-S3)
      */
     LCD(uint8_t interface_addr, uint8_t cols, uint8_t rows, uint8_t sda_pin, uint8_t scl_pin);
 
@@ -70,7 +74,7 @@ public:
     /**
      * @brief Adds data to the data buffer
      */
-    void addBufferData(String data);
+    void addBufferData(const char* text);
 };
 
 #endif

@@ -14,19 +14,25 @@ enum ZState
 
 /**
  * @brief Describes the joysticks x-axis state
+ * 
+ * Note that the x-axis is the vertical axis in the setup logic
  */
 enum XState
-{
-    LEFT,
-    RIGHT
+{   
+    NEUTRALX,
+    UP,
+    DOWN
 };
 
 /**
  * @brief Describes the joysticks y-axis state
+ * 
+ * Note that the y-axis is the horizontal axis in the setup logic
  */
 enum YState{
-    UP,
-    DOWN
+    NEUTRALY,
+    LEFT,
+    RIGHT
 };
 
 struct JoyStickState

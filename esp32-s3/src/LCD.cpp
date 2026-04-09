@@ -24,7 +24,7 @@ void LCD::display(uint8_t pos)
 {
     lcd.setCursor(0, 0);
 
-    uint8_t size = this->buffer.size();
+    uint8_t size = this->bufferSize;
 
     if (pos >= size){
         pos = size;
@@ -34,15 +34,17 @@ void LCD::display(uint8_t pos)
 
 int LCD::getBufferLength() const
 {
-    return this->buffer.size();
+    return this->bufferSize;
 }
 
 void LCD::clearBuffer()
 {
-    this->buffer.clear();
+    this->bufferSize = 0;
 }
 
-void LCD::addBufferData(String data)
+void LCD::addBufferData(const char* text)
 {
-    this->buffer.push_back(data);
+    strncpy(buffer[bufferSize], text, MAX_LENGTH - 1);
+    buffer[bufferSize][MAX_LENGTH - 1] = '\0';
+    bufferSize++;
 }
