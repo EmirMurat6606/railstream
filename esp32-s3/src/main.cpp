@@ -4,7 +4,7 @@
 #include "JoyStick.h"
 #include "DisplayController.h"
 #include "WifiManager.h"
-#include "MQTTClient.h"
+#include "MQTTSubscriber.h"
 
 // Define the LCD display
 LCD lcd = LCD{0x27, 16, 2, A4, A5};
@@ -12,16 +12,17 @@ LCD lcd = LCD{0x27, 16, 2, A4, A5};
 // Define the Joystick
 JoyStick joyStick = JoyStick{A0, A1, 8};
 
-// Define the DisplayController
-DisplayController controller = DisplayController{lcd, joyStick};
-
 // Define the Wifi-manager
 Wifi::Manager wifiManager = Wifi::Manager{};
 unsigned long lastWifiCheck = 0;
 const unsigned long wifiCheckInterval = 2000;
 
-// Define the MQTT Client (random client id)
-MQTT::Client mqttClient = MQTT::Client("esp32_s3_mini1_emir_ncvkxmqeuifuazoeifd");
+// Define the MQTT Subscriber (random client id)
+MQTT::Subscriber mqttSubscriber = MQTT::Subscriber("esp32_s3_mini1_emir");
+
+// Define the DisplayController
+DisplayController controller = DisplayController{lcd, joyStick, mqttSubscriber};
+
 
 void setup() {
   // Setup serial
@@ -33,29 +34,20 @@ void setup() {
   // Setup display
   lcd.begin();
 
-  lcd.addBufferData("1");
-  lcd.addBufferData("2");
-  lcd.addBufferData("3");
-  lcd.addBufferData("4");
-  lcd.addBufferData("5");
-  lcd.addBufferData("6");
-  lcd.addBufferData("7");
-  lcd.addBufferData("8");
-  lcd.addBufferData("9");
-  lcd.addBufferData("10");
-
   // WiFi connect (background task)
   Serial.println("Start WiFi setup");
   wifiManager.connect();
   Serial.println("WiFi connection established");
 
   // Setup MQTT Client
-  while (!mqttClient.connect()){
+  while (!mqttSubscriber.connect()){
     delay(500);
   }
+
+  Serial.println("MQTT connection established");
   
-  mqttClient.subscribe("topic/test/test1", 1);
-  mqttClient.subscribe("topic/test/test2", 1);
+  mqttSubscriber.subscribe("topic/test/test1", 1);
+  mqttSubscriber.subscribe("topic/test/test2", 1);
  
 }
 
@@ -64,12 +56,18 @@ void loop() {
   controller.update();
 
   // The PubSubClient needs to update to get messages
-  mqttClient.getClient().loop();
+  mqttSubscriber.getClient().loop();
 
   // Check for MQTT Connection loss
-  if (!mqttClient.getClient().connected() && wifiManager.status()) {
+  if (!mqttSubscriber.getClient().connected() && wifiManager.status()) {
     Serial.println("MQTT lost connection!");
-    mqttClient.connect();
+    Serial.println("Trying to reconnect MQTT...");
+    bool result = mqttSubscriber.connect();
+    if (result) {
+      Serial.println("MQTT reconnected!");
+    } else {
+      Serial.println("MQTT reconnect failed.");
+    }
   }
 
   // Check WiFi periodically

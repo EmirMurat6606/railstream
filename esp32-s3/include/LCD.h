@@ -4,13 +4,11 @@
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
 
-static const uint8_t MAX_ITEMS = 10;
-static const uint8_t MAX_LENGTH = 17; // if cols is 16
-
 class LCD
 {
 
 private:
+
     const uint8_t I2C_addr;
 
     const uint8_t cols;
@@ -18,10 +16,6 @@ private:
 
     const uint8_t SDA_PIN;
     const uint8_t SCL_PIN;
-
-    char buffer[MAX_ITEMS][MAX_LENGTH];
-    uint8_t bufferSize = 0;
-;
 
     LiquidCrystal_I2C lcd;
 
@@ -50,33 +44,14 @@ public:
     /**
      * @brief Displays some text on the lcd
      *
-     * @param pos position of the data in the buffer to display
+     * @param data data to display
      */
-    void display(uint8_t pos);
+    void display(const char* data);
 
     /**
      * @brief Clears the display
      */
     void clear();
-
-    /**
-     * @brief Returns the length of the buffer (amount of data to display)
-     * 
-     * @return The length of the internal data buffer
-     */
-    int getBufferLength() const;
-
-    /**
-     * @brief Clears the data in the buffer
-     */
-    void clearBuffer();
-
-    /**
-     * @brief Adds data to the data buffer
-     * 
-     * Note: the data is discarded if the buffer was already full (buffersize = MAX_ITEMS)
-     */
-    void addBufferData(const char* text);
 };
 
 #endif
