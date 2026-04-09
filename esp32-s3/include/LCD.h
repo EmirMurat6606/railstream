@@ -73,6 +73,8 @@ public:
 
     /**
      * @brief Adds data to the data buffer
+     * 
+     * Note: the data is discarded if the buffer was already full (buffersize = MAX_ITEMS)
      */
     void addBufferData(const char* text);
 };

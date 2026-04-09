@@ -13,6 +13,8 @@ void LCD::begin()
 
     // Test
     lcd.print("Initialized");
+    delay(1000);
+    lcd.clear();
 }
 
 void LCD::clear()
@@ -24,10 +26,8 @@ void LCD::display(uint8_t pos)
 {
     lcd.setCursor(0, 0);
 
-    uint8_t size = this->bufferSize;
-
-    if (pos >= size){
-        pos = size;
+    if (pos >= this->bufferSize){
+        pos = this->bufferSize - 1;
     }
     lcd.print(buffer[pos]);
 }
@@ -44,6 +44,9 @@ void LCD::clearBuffer()
 
 void LCD::addBufferData(const char* text)
 {
+    if (bufferSize >= MAX_ITEMS)
+        return; 
+
     strncpy(buffer[bufferSize], text, MAX_LENGTH - 1);
     buffer[bufferSize][MAX_LENGTH - 1] = '\0';
     bufferSize++;
