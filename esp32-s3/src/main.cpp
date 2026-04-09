@@ -67,7 +67,7 @@ void loop() {
   mqttClient.getClient().loop();
 
   // Check for MQTT Connection loss
-  if (!mqttClient.getClient().connected()) {
+  if (!mqttClient.getClient().connected() && wifiManager.status()) {
     Serial.println("MQTT lost connection!");
     mqttClient.connect();
   }

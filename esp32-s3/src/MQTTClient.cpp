@@ -29,7 +29,7 @@ bool MQTT::Client::connect()
 {
     // cleanSession (last argument) is false
     Serial.println("Trying MQTT connect...");
-    bool result = client.connect(client_id, this->credentials.mqtt_username, this->credentials.mqtt_password);
+    bool result = client.connect(client_id, this->credentials.mqtt_username, this->credentials.mqtt_password, 0, 0, false, 0, false);
     if (result) Serial.println("MQTT connected!");
     else Serial.println("MQTT connection failed!");
     return result;
