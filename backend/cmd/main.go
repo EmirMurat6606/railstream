@@ -2,21 +2,19 @@
 package main
 
 import (
-	"time"
+	"fmt"
 	sloader "github.com/EmirMurat6606/railstream/internal/gtfs"
 )
 
-
-func check(err error){
-	if (err != nil){
+func check(err error) {
+	if err != nil {
 		panic(err)
 	}
 }
 
 func main() {
-	err := sloader.StartLoader()
+	feed, err := sloader.ParseStaticGTFS()
 	check(err)
 
-	time.Sleep(100000000000000000)
-
+	fmt.Println(feed)
 }

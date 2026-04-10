@@ -13,10 +13,8 @@ import (
 
 // StaticFeed stores information from the static GTFS feed
 type StaticFeed struct {
-	Stops map[string]*Stop
-	Trips map[string]*Trip 
-	StopTimes    map[string][]*StopTime       
-    Services     map[string]*Service
+	Stops []Stop
+
 }
 
 func updateStatic() error {
@@ -65,6 +63,8 @@ func updateStatic() error {
 }
 
 // StartLoader executes a goroutine that periodically updates the static feed
+//
+// It loads the static feed immediately and then schedules updates every 24 hours at 05:30 Brussels time
 func StartLoader() error {
 
 	loc, err := time.LoadLocation("Europe/Brussels")

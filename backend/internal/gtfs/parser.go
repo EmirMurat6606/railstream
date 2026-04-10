@@ -9,9 +9,11 @@ import (
 // parseStaticGTFS extracts static feed data
 //
 // This function extracts the gtfs.zip, gets all relevant data and returns a staticFeed object or an error
-func parseStaticGTFS() (*StaticFeed, error) {
+func ParseStaticGTFS() (*StaticFeed, error) {
 
-	gtfs, err := zip.OpenReader("./gtfs/gtfs.zip")
+	gtfs, err := zip.OpenReader("gtfs.zip")
+	fmt.Println("1")
+
 
 	if err != nil {
 		return nil, err
@@ -19,31 +21,17 @@ func parseStaticGTFS() (*StaticFeed, error) {
 
 	defer gtfs.Close()
 
-	// Construct the static feed
+	// Create a new StaticFeed object to store the parsed data
 	feed := &StaticFeed{
-		Stops:     make(map[string]*Stop),
-		Trips:     make(map[string]*Trip),
-		StopTimes: make(map[string][]*StopTime),
-		Services:  make(map[string]*Service),
+		Stops: []Stop{},
 	}
 
 	for _, f := range gtfs.File {
 		switch f.Name {
 
-		case "stops.txt":
+		case "gtfs/stops.txt":
+			fmt.Println("2")
 			if err := parseStops(f, feed); err != nil {
-				return nil, err
-			}
-		case "trips.txt":
-			if err := parseTrips(f, feed); err != nil {
-				return nil, err
-			}
-		case "stop_times.txt":
-			if err := parseStopTimes(f, feed); err != nil {
-				return nil, err
-			}
-		case "calendar.txt":
-			if err := parseCalendar(f, feed); err != nil {
 				return nil, err
 			}
 		default:
@@ -51,23 +39,58 @@ func parseStaticGTFS() (*StaticFeed, error) {
 		}
 	}
 
-	return nil, nil
+	return feed, nil
 }
 
 func parseStops(f *zip.File, feed *StaticFeed) error {
 	rc, err := f.Open()
+
 	if err != nil {
 		return err
 	}
-
 	defer rc.Close()
 
 	reader := csv.NewReader(rc)
 
 	header, err := reader.Read()
-	fmt.Print(header)
+
 	if err != nil {
 		return err
+	}
+
+	var stopIDIndex, stopNameIndex, stopDescIndex uint8
+
+	for index, field := range header{
+		switch field {
+		case "stop_id":
+			stopIDIndex = uint8(index)
+		case "stop_name":
+			stopNameIndex = uint8(index)
+		case "stop_desc":
+			stopDescIndex = uint8(index)
+		default:
+			// Nothing to do
+		}
+	}
+
+	stopData, err := reader.ReadAll()
+
+	if err != nil {
+		return err
+	}
+
+	for _, row := range stopData{
+		switch row[stopNameIndex] {
+		case "Tamise", "Anvers-Berchem", "Puurs", "Saint-Nicolas", "Malines":
+			if row[stopDescIndex] == "NMBSSNCB  STATION" {
+				feed.Stops = append(feed.Stops, Stop{
+					ID: row[stopIDIndex],
+					Name: row[stopNameIndex],
+				})
+			}
+		default:
+			// nothing to do
+		}
 	}
 
 	return nil
@@ -76,7 +99,6 @@ func parseStops(f *zip.File, feed *StaticFeed) error {
 func parseTrips(f *zip.File, feed *StaticFeed) error {
 	return nil
 }
-
 func parseStopTimes(f *zip.File, feed *StaticFeed) error {
 	return nil
 }
