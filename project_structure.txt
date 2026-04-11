@@ -1,4 +1,4 @@
-rail-mqtt-edge-gateway/
+railstream/
 │
 ├── backend/                  # Go service (EC2)
 │   ├── cmd/
@@ -7,39 +7,44 @@ rail-mqtt-edge-gateway/
 │   │
 │   ├── internal/
 │   │   ├── gtfs/
-│   │   │   ├── static_loader.go
-│   │   │   ├── realtime_fetcher.go
+│   │   │   ├── staticloader.go
+│   │   │   ├── fetcher.go
 │   │   │   └── parser.go
 │   │   │
 │   │   ├── mqtt/
 │   │   │   └── publisher.go
 │   │   │
-│   │   └── config/
-│   │       └── config.go
+│   │   └── configs/
+│   │       └── configs.yml
 │   │
+|   ├── .env (in .gitignore)
+|   ├── .gitignore
 │   ├── go.mod
 │   └── go.sum
 │
 ├── firmware/                 # ESP32 PlatformIO project
+|   ├── .gitignore
 │   ├── platformio.ini
 │   ├── src/
 │   │   ├── main.cpp
-│   │   ├── wifi_manager.cpp
-│   │   ├── mqtt_client.cpp
-│   │   ├── lcd_display.cpp
-│   │   ├── joystick.cpp
-│   │   └── trip_view.cpp
+│   │   ├── WifiManager.cpp
+│   │   ├── MQTTSubscriber.cpp
+│   │   ├── LCD.cpp
+│   │   ├── JoyStick.cpp
+│   │   └── DisplayController.cpp
 │   │
 │   └── include/
-│       ├── wifi_manager.h
-│       ├── mqtt_client.h
-│       ├── lcd_display.h
-│       ├── joystick.h
-│       └── trip_view.h
+│       ├── WifiManager.h
+│       ├── MQTTSubscriber.h
+│       ├── LCD.h
+│       ├── JoyStick.h
+│       ├── DisplayController.h
+|       └── Secrets.h (in .gitignore)
 │
 ├── docs/
 │   ├── architecture.md
-│   ├── hardware_schematic.png
+│   ├── circuit.png
 │   └── demo.gif
 │
-└── README.md
+├── README.md
+└── LICENSE
