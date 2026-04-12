@@ -13,8 +13,8 @@ import (
 
 // StaticFeed stores information from the static GTFS feed
 type StaticFeed struct {
-	Stops []Stop
-
+    Stops     []*Stop
+    stopIndex map[string]*Stop // interne
 }
 
 func updateStatic() error {

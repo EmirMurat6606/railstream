@@ -2,8 +2,9 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	sloader "github.com/EmirMurat6606/railstream/internal/gtfs"
+	"os"
 )
 
 func check(err error) {
@@ -16,5 +17,10 @@ func main() {
 	feed, err := sloader.ParseStaticGTFS()
 	check(err)
 
-	fmt.Println(feed)
+	data, err := json.MarshalIndent(feed, "", "  ")
+	check(err)
+
+	err = os.WriteFile("feed.json", data, 0644)
+	check(err)
+
 }
