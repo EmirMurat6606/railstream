@@ -2,9 +2,7 @@
 package main
 
 import (
-	"encoding/json"
-	sloader "github.com/EmirMurat6606/railstream/internal/gtfs"
-	"os"
+	gtfs "github.com/EmirMurat6606/railstream/internal/gtfs"
 )
 
 func check(err error) {
@@ -14,13 +12,9 @@ func check(err error) {
 }
 
 func main() {
-	feed, err := sloader.ParseStaticGTFS()
+	err := gtfs.StartLoader()
 	check(err)
 
-	data, err := json.MarshalIndent(feed, "", "  ")
-	check(err)
-
-	err = os.WriteFile("feed.json", data, 0644)
-	check(err)
-
+	// Let the program run infinitely long, untill it is killed explicitely
+	gtfs.Waitgroup.Wait()
 }

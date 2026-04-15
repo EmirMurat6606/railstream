@@ -157,6 +157,8 @@ This is important for battery-powered devices that may temporarily disconnect.
 
 # 🖥️ Hardware Setup
 
+![Alt text](./docs/circuit.png)
+
 ## Board
 
 - Freenove ESP32-S3 V5
