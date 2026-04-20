@@ -32,11 +32,11 @@ func main() {
 	defer stop()
 
 	pub, err := mqtt.NewMqttPublisher(
-		"49970051230a4dacb5b34fe2e2447647.s1.eu.hivemq.cloud",
+		".env",
 		8883,
 		"railstream_cluster",
-		".env",
 	)
+	
 	check(err)
 
 	waitgroup.Go(func() {

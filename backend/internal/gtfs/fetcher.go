@@ -36,7 +36,7 @@ func StartRealtimeFeed(ctx context.Context, publisher *mqtt.Publisher) error {
 		30*time.Second,
 		window,
 		func(ctx context.Context) error {
-			return fetchRealTimeData()
+			return fetchRealTimeData(publisher)
 		},
 	)
 }
