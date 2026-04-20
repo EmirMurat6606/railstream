@@ -33,7 +33,9 @@ var (
 func init() {
 	var err error
 	data, err = env.Read(".env")
-	panic(err)
+	if err != nil{
+		panic(err)
+	}
 }
 
 // StartLoader executes a goroutine that periodically updates the static feed
