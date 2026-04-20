@@ -1,4 +1,0 @@
-The config directory contains all the needed configurations for the project.
-This includes API keys, credentials to authenticate with the MQTT broker, etc.
-
-Include all the files with sensitive data in the .gitignore file!

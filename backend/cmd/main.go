@@ -2,8 +2,18 @@
 package main
 
 import (
+	"context"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+
+	mqtt "github.com/EmirMurat6606/railstream/internal/mqtt"
 	gtfs "github.com/EmirMurat6606/railstream/internal/gtfs"
 )
+
+// waitGroup for all go routines
+var waitgroup = sync.WaitGroup{}
 
 func check(err error) {
 	if err != nil {
@@ -12,9 +22,32 @@ func check(err error) {
 }
 
 func main() {
-	err := gtfs.StartLoader()
+
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+
+	defer stop()
+
+	pub, err := mqtt.NewMqttPublisher(
+		"49970051230a4dacb5b34fe2e2447647.s1.eu.hivemq.cloud",
+		8883,
+		"railstream_cluster",
+		".env",
+	)
 	check(err)
 
-	// Let the program run infinitely long, untill it is killed explicitely
-	gtfs.Waitgroup.Wait()
+	waitgroup.Go(func() {
+		err := gtfs.StartLoader(ctx)
+		check(err)
+	})
+
+	waitgroup.Go(func() {
+		err := gtfs.StartRealtimeFeed(ctx, pub)
+		check(err)
+	})
+
+	waitgroup.Wait()
 }

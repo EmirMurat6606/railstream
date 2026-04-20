@@ -5,6 +5,7 @@
 package mqtt
 
 import (
+	"errors"
 	"fmt"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -27,6 +28,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 type credentials struct {
+	Url      string
 	Username string
 	Password string
 }
@@ -40,6 +42,7 @@ func loadCredentials(path string) (*credentials, error) {
 	}
 
 	var credentials = credentials{
+		Url:      data["MQTT_URL"],
 		Username: data["MQTT_USERNAME"],
 		Password: data["MQTT_PASSWORD"],
 	}
@@ -47,16 +50,16 @@ func loadCredentials(path string) (*credentials, error) {
 	return &credentials, nil
 }
 
-type publisher struct {
+type Publisher struct {
 	client mqtt.Client
 }
 
 // NewMqttPublisher creates a new mqttPublisher object
-func NewMqttPublisher(broker string, port uint16, clientName string, credentialsPath string) (*publisher, error) {
+//
+// credentialsPath must contain the mqtt cluster url, the cluster name and a secret password
+func NewMqttPublisher(credentialsPath string, port uint16, clientName string) (*Publisher, error) {
 
-	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tls://%s:%d", broker, port))
-	opts.SetClientID(clientName)
+	var url, username, password string
 
 	if len(credentialsPath) != 0 {
 		credentials, err := loadCredentials(credentialsPath)
@@ -65,15 +68,24 @@ func NewMqttPublisher(broker string, port uint16, clientName string, credentials
 			return nil, err
 		}
 
-		opts.SetUsername(credentials.Username)
-		opts.SetPassword(credentials.Password)
+		url, username, password = credentials.Url, credentials.Username, credentials.Password
+
+	} else {
+		return nil, errors.New("No credentials present")
 	}
+
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(fmt.Sprintf("tls://%s:%d", url, port))
+	opts.SetClientID(clientName)
+
+	opts.SetUsername(username)
+	opts.SetPassword(password)
 
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
 
-	var publisher = publisher{
+	var publisher = Publisher{
 		client: mqtt.NewClient(opts),
 	}
 
@@ -85,12 +97,10 @@ func NewMqttPublisher(broker string, port uint16, clientName string, credentials
 	return &publisher, nil
 }
 
-func (p *publisher) Publish(data byte, topic string) error {
+func (p *Publisher) Publish(data byte, topic string) error {
 	token := p.client.Publish(topic, 1, true, data)
 
-	if token.Error() != nil {
-		return token.Error()
-	}
+	token.Wait()
 
-	return nil
+	return token.Error()
 }
