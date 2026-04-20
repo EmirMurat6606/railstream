@@ -11,11 +11,9 @@ railstream/
 │   │   │   ├── fetcher.go
 │   │   │   └── parser.go
 │   │   │
-│   │   ├── mqtt/
-│   │   │   └── publisher.go
-│   │   │
-│   │   └── configs/
-│   │       └── configs.yml
+│   │   └── mqtt/
+│   │       └── publisher.go
+│   │   
 │   │
 |   ├── .env (in .gitignore)
 |   ├── .gitignore
