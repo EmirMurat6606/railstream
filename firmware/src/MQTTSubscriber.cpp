@@ -15,35 +15,26 @@ void MQTT::Subscriber::callback(char *topic, byte *payload, unsigned int length)
 
 void MQTT::Subscriber::handleMessage(char *topic, byte *payload, unsigned int length)
 {
-    Serial.println("[MQTT] Handling message...");
 
     for (uint8_t i = 0; i < subscription_counter; i++)
     {
-        Serial.print("[MQTT] Checking subscription index ");
-        Serial.println(i);
 
         if (strcmp(topic, subscriptions[i].topic) == 0)
         {
-            Serial.println("[MQTT] Topic match found!");
 
             uint8_t copyLen = length;
             if (copyLen >= Subscription::MAX_BUFLEN)
             {
-                Serial.println("[MQTT] Payload truncated!");
                 copyLen = Subscription::MAX_BUFLEN - 1;
             }
 
             memcpy(subscriptions[i].bufferData, payload, copyLen);
             subscriptions[i].bufferData[copyLen] = '\0';
 
-            Serial.print("[MQTT] Stored bufferData: ");
-            Serial.println(subscriptions[i].bufferData);
-
             return;
         }
     }
 
-    Serial.println("[MQTT] WARNING: No matching subscription found");
 }
 
 MQTT::Subscriber::Subscriber(const char *client_id) : client_id(client_id), wifiClient(WiFiSSLClient()), client(wifiClient)
