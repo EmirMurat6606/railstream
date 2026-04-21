@@ -13,14 +13,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/EmirMurat6606/railstream/internal/mqtt"
+
 	scheduler "github.com/EmirMurat6606/railstream/internal/scheduler"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
 // StartRealtimeFetcher fetches the realtime NMBS api periodically
 //
 // The realtime data is fetched every 30 seconds from 6:30 to 12:30 every day
-func StartRealtimeFetcher(ctx context.Context) error {
+func StartRealtimeFetcher(ctx context.Context, publisher *mqtt.Publisher) error {
 
 	loc, err := time.LoadLocation("Europe/Brussels")
 
@@ -39,19 +42,22 @@ func StartRealtimeFetcher(ctx context.Context) error {
 	fromName, toName := "Temse", "Sint-Niklaas"
 
 	task := func(ctx context.Context) error {
-		return fetchJourney(ctx, fromName, toName)
+		return fetchJourney(ctx, fromName, toName, publisher)
 	}
 
 	return scheduler.RunPeriodic(ctx, 30*time.Second, window, task)
 }
 
-func fetchJourney(ctx context.Context, fromName, toName string) error {
+func fetchJourney(ctx context.Context, fromFrName, toFrName string, publisher *mqtt.Publisher) error {
 
-	fromID := getStationID(fromName)
-	toID := getStationID(toName)
+	from, ok := getStation(fromFrName)
+	if !ok {
+		return fmt.Errorf("vertrekstation niet gevonden: %s", fromFrName)
+	}
 
-	if fromID == "" || toID == "" {
-		return fmt.Errorf("station IDs not loaded yet")
+	to, ok := getStation(toFrName)
+	if !ok {
+		return fmt.Errorf("aankomststation niet gevonden: %s", toFrName)
 	}
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
@@ -128,47 +134,21 @@ func fetchJourney(ctx context.Context, fromName, toName string) error {
 
 	// -------- POST route planner --------
 
-	buildReference := func(name, id string, lat, lon float64) string {
-		x := int(lon * 1_000_000)
-		y := int(lat * 1_000_000)
-
-		ref := fmt.Sprintf(
-			"A=1@O=%s@X=%d@Y=%d@U=80@L=%s@B=1@p=0@",
-			name,
-			x,
-			y,
-			id,
-		)
-
-		return url.QueryEscape(ref)
-	}
-
-	fromRef := buildReference(fromName, fromID, fromLat, fromLon)
-	toRef := buildReference(toName, toID, toLat, toLon)
-
-	// Date moet ook URL encoded
-	encodedDate := url.QueryEscape(dateStr)
-
-	// ExtraOptions hardcoded (zoals browser)
 	extraOptions := "%5B%7B%22name%22%3A%22Minimum+transfer+time%22%2C%22value%22%3A%220%22%7D%2C%7B%22name%22%3A%22First+mile%22%2C%22value%22%3A%22By+foot%22%7D%2C%7B%22name%22%3A%22Last+mile%22%2C%22value%22%3A%22By+foot%22%7D%2C%7B%22name%22%3A%22Transport+means%22%2C%22value%22%3A%22Train%22%7D%2C%7B%22name%22%3A%22Slower+trains%22%2C%22value%22%3A%22exclude%22%7D%5D"
 
-	// BELANGRIJK: ook station names encoden
-	encodedFrom := url.QueryEscape(fromName)
-	encodedTo := url.QueryEscape(toName)
-
-	tokenString :=
+	postBody :=
 		"__RequestVerificationToken=" + token +
-			"&Origin.Name=" + encodedFrom +
+			"&Origin.Name=" + url.QueryEscape(from.Name) + // "Temse"
 			"&Origin.Icon=nmbs-logo" +
-			"&Origin.ExtId=" + fromID +
+			"&Origin.ExtId=" + from.ExtID + // "8894672"
 			"&Origin.IsBelgian=true" +
-			"&Origin.Reference=" + fromRef +
-			"&Destination.Name=" + encodedTo +
+			"&Origin.Reference=" + from.encodedReference() + // URL-encoded Hafas string
+			"&Destination.Name=" + url.QueryEscape(to.Name) +
 			"&Destination.Icon=nmbs-logo" +
-			"&Destination.ExtId=" + toID +
+			"&Destination.ExtId=" + to.ExtID +
 			"&Destination.IsBelgian=true" +
-			"&Destination.Reference=" + toRef +
-			"&DatePicker=" + encodedDate +
+			"&Destination.Reference=" + to.encodedReference() +
+			"&DatePicker=" + url.QueryEscape(dateStr) +
 			"&TimePicker=" + timeStr +
 			"&BoardType=DepartureBoard" +
 			"&Language=Dutch" +
@@ -176,7 +156,7 @@ func fetchJourney(ctx context.Context, fromName, toName string) error {
 			"&SaveExtraOptions=False" +
 			"&IsInternationalTrip=False"
 
-	body := strings.NewReader(tokenString)
+	body := strings.NewReader(postBody)
 
 	req2, err := http.NewRequest(
 		"POST",
@@ -244,10 +224,4 @@ func parseDelays(body []byte) {
 	}
 
 	log.Println("Delay detected:", delay)
-}
-
-func getStationID(name string) string {
-	stationMu.RLock()
-	defer stationMu.RUnlock()
-	return stationToId[name]
 }

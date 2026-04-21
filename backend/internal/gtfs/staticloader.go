@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	gtfs "github.com/jamespfennell/gtfs"
@@ -16,19 +15,6 @@ import (
 // data stores the environment variables
 var data map[string]string
 
-// stationToID stores the station name -> id mapping (initially empty)
-var (
-	stationToId = map[string]string{
-		"Tamise":         "",
-		"Saint-Nicolas":  "",
-		"Puurs":          "",
-		"Malines":        "",
-		"Anvers-Berchem": "",
-	}
-
-	// Prevent possible race conditions between static update and real-time fetch
-	stationMu sync.RWMutex
-)
 
 func init() {
 	var err error
@@ -120,7 +106,9 @@ func updateStatic() error {
 
 			case "Tamise", "Saint-Nicolas", "Puurs", "Malines", "Anvers-Berchem":
 				stationMu.Lock()
-				stationToId[stop.Name] = extractNumericID(stop.Id)
+				s := stationRegistry[stop.Name]
+				s.ExtID = extractNumericID(stop.Id)
+				stationRegistry[stop.Name] = s  
 				stationMu.Unlock()
 			default:
 				// nothing to do
