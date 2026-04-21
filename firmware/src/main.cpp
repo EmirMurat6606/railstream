@@ -62,7 +62,6 @@ void loop() {
         lastWifiCheck = millis();
 
         if (!wifiManager.status()) {
-            Serial.println("WiFi lost, reconnecting...");
             wifiManager.tryConnect(5000);
         }
     }
