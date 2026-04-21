@@ -104,7 +104,7 @@ func updateStatic() error {
 		if stop.Description == "NMBSSNCB  STATION" {
 			switch stop.Name {
 
-			case "Tamise", "Saint-Nicolas", "Puurs", "Malines", "Anvers-Berchem":
+			case "Tamise", "Saint-Nicolas", "Puurs", "Malines":
 				stationMu.Lock()
 				s := stationRegistry[stop.Name]
 				s.ExtID = extractNumericID(stop.Id)

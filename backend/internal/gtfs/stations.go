@@ -32,6 +32,11 @@ var (
 			ExtID:     "8822715",
 			reference: "A=1@O=Puurs@X=4282704@Y=51077220@U=80@L=8822715@B=1@p=1776549195@",
 		},
+		"Malines": {
+			Name:      "Mechelen",
+			ExtID:     "8822004",
+			reference: "A=1@O=Mechelen@X=4482786@Y=51017649@U=80@L=8822004@B=1@p=1776549195@",
+		},
 	}
 
 	stationMu sync.RWMutex

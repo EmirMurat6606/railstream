@@ -97,7 +97,7 @@ func NewMqttPublisher(credentialsPath string, port uint16, clientName string) (*
 	return &publisher, nil
 }
 
-func (p *Publisher) Publish(data byte, topic string) error {
+func (p *Publisher) Publish(data string, topic string) error {
 	token := p.client.Publish(topic, 1, true, data)
 
 	token.Wait()

@@ -4,6 +4,7 @@ package gtfs
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -20,6 +21,11 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// jorneyResponse stores the response
+type journeyResponse struct {
+	MainResult string `json:"MainResult"`
+}
+
 // StartRealtimeFetcher fetches the realtime NMBS api periodically
 //
 // The realtime data is fetched every 30 seconds from 6:30 to 12:30 every day
@@ -34,38 +40,20 @@ func StartRealtimeFetcher(ctx context.Context, publisher *mqtt.Publisher) error 
 	window := scheduler.Window{
 		StartHour:   6,
 		StartMinute: 30,
-		EndHour:     12,
+		EndHour:     20,
 		EndMinute:   30,
 		Location:    loc,
 	}
 
-	fromName, toName := "Temse", "Sint-Niklaas"
-
 	task := func(ctx context.Context) error {
-		return fetchJourney(ctx, fromName, toName, publisher)
+		err := runBatch(ctx, publisher)
+		return err
 	}
 
 	return scheduler.RunPeriodic(ctx, 30*time.Second, window, task)
 }
 
-func fetchJourney(ctx context.Context, fromFrName, toFrName string, publisher *mqtt.Publisher) error {
-
-	from, ok := getStation(fromFrName)
-	if !ok {
-		return fmt.Errorf("vertrekstation niet gevonden: %s", fromFrName)
-	}
-
-	to, ok := getStation(toFrName)
-	if !ok {
-		return fmt.Errorf("aankomststation niet gevonden: %s", toFrName)
-	}
-
-	loc, _ := time.LoadLocation("Europe/Brussels")
-	now := time.Now().In(loc)
-
-	// Date and time are layout, not actual data and time
-	dateStr := now.Format("02/01/2006")
-	timeStr := now.Format("1504")
+func initSession() (*http.Client, string, error) {
 
 	jar, _ := cookiejar.New(nil)
 
@@ -130,6 +118,47 @@ func fetchJourney(ctx context.Context, fromFrName, toFrName string, publisher *m
 	token, exists := doc.Find(`input[name="__RequestVerificationToken"]`).Attr("value")
 	if !exists {
 		log.Fatal("token not found")
+	}
+
+	return client, token, nil
+}
+
+func runBatch(ctx context.Context, publisher *mqtt.Publisher) error {
+	client, token, err := initSession()
+	if err != nil {
+		return err
+	}
+
+	for _, toStation := range []string{"Saint-Nicolas", "Puurs", "Malines"} {
+		if err := fetchJourney(ctx, client, token, "Tamise", toStation, publisher); err != nil {
+			log.Println(err)
+		}
+	}
+
+	return nil
+}
+
+func fetchJourney(ctx context.Context,
+	client *http.Client,
+	token string,
+	fromFrName, toFrName string,
+	publisher *mqtt.Publisher) error {
+
+	loc, _ := time.LoadLocation("Europe/Brussels")
+	now := time.Now().In(loc)
+
+	// Date and time are layout, not actual data and time
+	dateStr := now.Format("02/01/2006")
+	timeStr := now.Format("1504")
+
+	from, ok := getStation(fromFrName)
+	if !ok {
+		return fmt.Errorf("vertrekstation niet gevonden: %s", fromFrName)
+	}
+
+	to, ok := getStation(toFrName)
+	if !ok {
+		return fmt.Errorf("aankomststation niet gevonden: %s", toFrName)
 	}
 
 	// -------- POST route planner --------
@@ -200,28 +229,70 @@ func fetchJourney(ctx context.Context, fromFrName, toFrName string, publisher *m
 		return err
 	}
 
-	parseDelays(resultBody)
-
+	parseDelays(fromFrName, toFrName, resultBody, publisher)
 	return nil
 
 }
 
-func parseDelays(body []byte) {
+func parseDelays(fromFrName, toFrName string, body []byte, publisher *mqtt.Publisher) {
 
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
+	var jr journeyResponse
+	if err := json.Unmarshal(body, &jr); err != nil {
+		log.Println("json error:", err)
+		return
+	}
+
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(jr.MainResult))
 	if err != nil {
 		log.Println("parse error:", err)
 		return
 	}
 
+	firstResult := doc.Find("li.planner-list-item").First()
+
 	delay := strings.TrimSpace(
-		doc.Find(".planner__delay").First().Text(),
+		firstResult.Find(".planner__hour").First().Find(".planner__delay").Text(),
 	)
 
 	if delay == "" {
-		log.Println("No delay detected")
-		return
+		delay = "0"
 	}
 
-	log.Println("Delay detected:", delay)
+	track := strings.TrimSpace(
+		firstResult.Find(".planner__details--track").Text(),
+	)
+
+	track = strings.TrimPrefix(track, "spoor ")
+
+	// This function also handles publishing to MQTT Broker
+	// Not a clean architecture... but it works
+
+	topic := buildTopic(fromFrName, toFrName)
+
+	// Payload zo klein mogelijk
+	payload := delay + "|" + track
+
+	// Publish (QoS 1 + retained)
+	err = publisher.Publish(payload, topic)
+	if err != nil {
+		log.Println("mqtt publish error:", err)
+	}
+
+	log.Printf(
+		"Published %s → %s",
+		topic, payload,
+	)
+
+}
+
+func buildTopic(from, to string) string {
+
+	codes := map[string]string{
+		"Tamise":        "tm",
+		"Saint-Nicolas": "sn",
+		"Puurs":         "pu",
+		"Malines":       "me",
+	}
+
+	return "rail/" + codes[from] + "/" + codes[to]
 }
