@@ -39,9 +39,9 @@ func StartRealtimeFetcher(ctx context.Context, publisher *mqtt.Publisher) error 
 
 	window := scheduler.Window{
 		StartHour:   6,
-		StartMinute: 30,
-		EndHour:     20,
-		EndMinute:   30,
+		StartMinute: 45,
+		EndHour:     12,
+		EndMinute:   15,
 		Location:    loc,
 	}
 
