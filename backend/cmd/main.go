@@ -34,7 +34,7 @@ func main() {
 	pub, err := mqtt.NewMqttPublisher(
 		".env",
 		8883,
-		"railstream_cluster",
+		"railstream_ec2_publisher",
 	)
 
 	check(err)
