@@ -62,7 +62,7 @@ bool MQTT::Subscriber::connect()
 
 bool MQTT::Subscriber::subscribe(const char *topic, uint8_t qos)
 {
-    if (subscription_counter >= MAX_SUBSCRIPTIONS - 1)
+    if (subscription_counter >= MAX_SUBSCRIPTIONS)
     {
         return false;
     }

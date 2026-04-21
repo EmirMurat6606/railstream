@@ -46,8 +46,9 @@ void setup() {
 
   Serial.println("MQTT connection established");
   
-  mqttSubscriber.subscribe("topic/test/test1", 1);
-  mqttSubscriber.subscribe("topic/test/test2", 1);
+  mqttSubscriber.subscribe("rail/tm/sn", 1);
+  mqttSubscriber.subscribe("rail/tm/pu", 1);
+  mqttSubscriber.subscribe("rail/tm/me", 1);
  
 }
 
