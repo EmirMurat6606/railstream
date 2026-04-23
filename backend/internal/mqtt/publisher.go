@@ -33,21 +33,20 @@ type credentials struct {
 	Password string
 }
 
-func loadCredentials(path string) (*credentials, error) {
-	// Read credentials from the path
-	data, err := env.Read(path)
+func loadCredentials() (*credentials, error) {
+	url := os.Getenv("MQTT_URL")
+	username := os.Getenv("MQTT_USERNAME")
+	password := os.Getenv("MQTT_PASSWORD")
 
-	if err != nil {
-		return nil, err
+	if url == "" || username == "" || password == "" {
+		return nil, errors.New("missing MQTT environment variables")
 	}
 
-	var credentials = credentials{
-		Url:      data["MQTT_URL"],
-		Username: data["MQTT_USERNAME"],
-		Password: data["MQTT_PASSWORD"],
-	}
-
-	return &credentials, nil
+	return &credentials{
+		Url:      url,
+		Username: username,
+		Password: password,
+	}, nil
 }
 
 type Publisher struct {
@@ -55,14 +54,12 @@ type Publisher struct {
 }
 
 // NewMqttPublisher creates a new mqttPublisher object
-//
-// credentialsPath must contain the mqtt cluster url, the cluster name and a secret password
-func NewMqttPublisher(credentialsPath string, port uint16, clientName string) (*Publisher, error) {
+func NewMqttPublisher(port uint16, clientName string) (*Publisher, error) {
 
 	var url, username, password string
 
 	if len(credentialsPath) != 0 {
-		credentials, err := loadCredentials(credentialsPath)
+		credentials, err := loadCredentials()
 
 		if err != nil {
 			return nil, err

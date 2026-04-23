@@ -32,7 +32,6 @@ func main() {
 	defer stop()
 
 	pub, err := mqtt.NewMqttPublisher(
-		".env",
 		8883,
 		"railstream_ec2_publisher",
 	)
