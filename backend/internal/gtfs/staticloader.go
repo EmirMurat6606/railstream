@@ -72,7 +72,7 @@ func updateStatic() error {
 	}
 
 	req.Header.Add("Cache-Control", "no-cache")
-	req.Header.Add("bmc-partner-key", req.Header.Add("bmc-partner-key", os.Getenv("API_KEY_BEL_MOBILITY")))
+	req.Header.Add("bmc-partner-key", os.Getenv("API_KEY_BEL_MOBILITY"))
 
 	resp, err := client.Do(req)
 
