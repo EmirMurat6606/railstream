@@ -7,22 +7,11 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"os"
 
 	gtfs "github.com/jamespfennell/gtfs"
-	env "github.com/joho/godotenv"
 )
 
-// data stores the environment variables
-var data map[string]string
-
-
-func init() {
-	var err error
-	data, err = env.Read(".env")
-	if err != nil{
-		panic(err)
-	}
-}
 
 // StartLoader executes a goroutine that periodically updates the static feed
 //
@@ -83,7 +72,7 @@ func updateStatic() error {
 	}
 
 	req.Header.Add("Cache-Control", "no-cache")
-	req.Header.Add("bmc-partner-key", data["API_KEY_BEL_MOBILITY"])
+	req.Header.Add("bmc-partner-key", req.Header.Add("bmc-partner-key", os.Getenv("API_KEY_BEL_MOBILITY")))
 
 	resp, err := client.Do(req)
 
