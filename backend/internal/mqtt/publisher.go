@@ -7,9 +7,9 @@ package mqtt
 import (
 	"errors"
 	"fmt"
+	import "os"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	env "github.com/joho/godotenv"
 )
 
 // this callback triggers when a message is received, it then prints the message (in the payload) and topic
@@ -58,18 +58,15 @@ func NewMqttPublisher(port uint16, clientName string) (*Publisher, error) {
 
 	var url, username, password string
 
-	if len(credentialsPath) != 0 {
-		credentials, err := loadCredentials()
 
-		if err != nil {
-			return nil, err
-		}
+	credentials, err := loadCredentials()
 
-		url, username, password = credentials.Url, credentials.Username, credentials.Password
-
-	} else {
-		return nil, errors.New("No credentials present")
+	if err != nil {
+		return nil, err
 	}
+
+	url, username, password = credentials.Url, credentials.Username, credentials.Password
+
 
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tls://%s:%d", url, port))
