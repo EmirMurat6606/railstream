@@ -35,7 +35,7 @@ The system consists of three main components:
 2. **MQTT Broker (HiveMQ Cloud – Serverless)**
 3. **AWS EC2 Instance (Publisher / Data Fetcher)**
 
-Belgian Mobility API  -> AWS EC2 (Golang Publisher) -> MQTT Broker (HiveMQ) -> ESP32-S3 (Subscriber) -> 16x2 LCD Display
+NMBS Website  -> AWS EC2 (Golang Publisher) -> MQTT Broker (HiveMQ) -> ESP32-S3 (Subscriber) -> 16x2 LCD Display
 
 The ESP32 never directly queries the NMBS API. All heavy processing is handled by the EC2 instance.
 
@@ -74,7 +74,7 @@ Golang was chosen because:
 The Go application currently:
 
 - Periodically fetches NMBS train data
-- Parses the API response
+- Parses the HTML response
 - Extracts relevant information
 - Publishes structured data to MQTT topics
 - Maintains connection to MQTT broker
@@ -82,6 +82,14 @@ The Go application currently:
 ⚠️ Note: The implementation is still a work in progress and will be extended with additional filtering and suggestion logic.
 
 ---
+
+🔄 Fetching strategy
+
+The application does not use realtime delay API, because:
+
+realtime delays are not trustworthy, they are never updated and return a value of "0" delay all the time. niet betrouwbaar of niet beschikbaar zijn via 
+
+👉 That is why I approach NMBS / Belgian Train website API indirectly via the same endpoints the website uses.
 
 # 📡 Why MQTT Instead of HTTP?
 
