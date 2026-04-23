@@ -7,7 +7,7 @@ package mqtt
 import (
 	"errors"
 	"fmt"
-	import "os"
+	"os"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
