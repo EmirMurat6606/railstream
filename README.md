@@ -79,17 +79,15 @@ The Go application currently:
 - Publishes structured data to MQTT topics
 - Maintains connection to MQTT broker
 
-⚠️ Note: The implementation is still a work in progress and will be extended with additional filtering and suggestion logic.
-
 ---
 
 🔄 Fetching strategy
 
 The application does not use realtime delay API, because:
 
-realtime delays are not trustworthy, they are never updated and return a value of "0" delay all the time. niet betrouwbaar of niet beschikbaar zijn via 
+realtime delays are not trustworthy, they are never updated and return a value of "0" delay all the time.
 
-👉 That is why I approach NMBS / Belgian Train website API indirectly via the same endpoints the website uses.
+That is why I approach NMBS / Belgian Train website API indirectly via the same endpoints the website uses.
 
 # 📡 Why MQTT Instead of HTTP?
 
@@ -219,12 +217,6 @@ It combines:
 And most importantly:
 
 No more struggling with your phone while wearing gloves.
-
----
-
-Author: Emir  
-Project: RailStream  
-Year: 2026
 
 
 
