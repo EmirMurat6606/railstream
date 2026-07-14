@@ -203,22 +203,6 @@ Used to scroll through available train data.
 
 The Z-axis pin is configured as: INPUT_PULLUP
 
-You get:
-Dedicated Device → Always Updated → Scroll → Go
-
-It combines:
-
-- Embedded programming
-- Cloud computing
-- MQTT communication
-- Energy efficiency
-- Real-world IoT principles
-
-And most importantly:
-
-No more struggling with your phone while wearing gloves.
-
-
-
-
-
+---
+All in all, it has turned out to be a fine and, above all, useful project.
+---
